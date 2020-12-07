@@ -63,8 +63,8 @@ jobs:
     - name: Put proto-lens-protoc on PATH
       run:  |
         cabal v2-build exe:proto-lens-protoc
-	cd proto-lens-protoc
-	cabal v2-exec -- sh -c 'dirname $(which proto-lens-protoc)' >> $GITHUB_PATH
+        cd proto-lens-protoc
+        cabal v2-exec -- sh -c 'dirname $(which proto-lens-protoc)' >> $GITHUB_PATH
 
     - name: Build all
       run:  |
@@ -72,4 +72,3 @@ jobs:
 
     - name: Test
       run:  cabal v2-test all
-
