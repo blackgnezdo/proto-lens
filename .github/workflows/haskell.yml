@@ -68,6 +68,7 @@ jobs:
 
     - name: Build all
       run:  |
+        (cd proto-lens-protobuf-types ; ls -l proto-src/google/protobuf/ ; ls -l proto-src/google ls -l proto-src ; true)
         cabal v2-build all
 
     - name: Test
