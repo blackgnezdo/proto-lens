@@ -40,7 +40,7 @@ jobs:
       run: |
         ls -l proto-lens-protobuf-types
         mkdir -p proto-lens-protobuf-types/proto-src/google/protobuf
-	ln -s $HOME/.local/include/*.proto proto-lens-protobuf-types/proto-src/google/protobuf
+        ln -s $HOME/.local/include/*.proto proto-lens-protobuf-types/proto-src/google/protobuf
     - uses: actions/setup-haskell@v1
       with:
         ghc-version: '8.8.2'
