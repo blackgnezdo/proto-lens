@@ -38,7 +38,7 @@ jobs:
       run: for p in */package.yaml; do hpack $p; done
     - name: Smuggle in protobuf protos
       run: |
-        ln -s $HOME/.local/include/*.proto google/protobuf
+        ln -s $HOME/.local/include/google/protobuf/*.proto google/protobuf
         ls -l google/protobuf
     - uses: actions/setup-haskell@v1
       with:
