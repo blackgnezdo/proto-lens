@@ -17,12 +17,14 @@ jobs:
         uname -a
     - name: Install hpack
       run: |
+        mkdir -p $HOME/.local/bin/
         curl -L https://github.com/sol/hpack/releases/download/0.34.2/hpack_linux.gz | gunzip > $HOME/.local/bin/hpack
         chmod +x $HOME/.local/bin/hpack
         echo "$HOME/.local/bin" >> $GITHUB_PATH
         $HOME/.local/bin/hpack --version
     - name: Install protoc
       run: |
+        mkdir -p $HOME/.local/bin/
         PROTOC_ZIP=protoc-3.14.0-linux-x86_64.zip
         curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP
         unzip -o $PROTOC_ZIP -d $HOME/.local bin/protoc
