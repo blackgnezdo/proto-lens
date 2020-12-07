@@ -12,7 +12,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: System info
+      run: |
+	uname -a
+    - name: Install hpack
+      run: |
+	curl -L https://github.com/sol/hpack/releases/download/0.34.2/hpack_linux.gz | gunzip > $HOME/.local/bin/hpack
+	chmod +x $HOME/.local/bin/hpack
+	echo "$HOME/.local/bin" >> $GITHUB_PATH
+	$HOME/.local/bin/hpack --version
+    - name: Install protoc
+      run: |
+	PROTOC_ZIP=protoc-3.14.0-linux-x86_64.zip
+	curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP
+	unzip -o $PROTOC_ZIP -d $HOME/.local bin/protoc
+	chmod +x $HOME/.local/bin/protoc
+	unzip -o $PROTOC_ZIP -d $HOME/local 'include/*'
+	rm -f $PROTOC_ZIP
+	echo "$HOME/.local/bin" >> $GITHUB_PATH
+	$HOME/.local/bin/protoc --version
     - uses: actions/checkout@v2
+    - name: Generate cabal files
+      run: for p in */package.yaml; do hpack $p; done
     - uses: actions/setup-haskell@v1
       with:
         ghc-version: '8.8.2'
@@ -32,5 +53,6 @@ jobs:
 
     - name: e2e
       run: |
-        ./travis-cabal.sh
-        true
+	  cabal v2-update
+	  cabal v2-test all
+
