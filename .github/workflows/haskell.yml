@@ -1,0 +1,75 @@
+name: Proto-lens CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: System info
+      run: |
+        uname -a
+    - name: Install hpack
+      run: |
+        mkdir -p $HOME/.local/bin/
+        curl -L https://github.com/sol/hpack/releases/download/0.34.2/hpack_linux.gz | gunzip > $HOME/.local/bin/hpack
+        chmod +x $HOME/.local/bin/hpack
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        $HOME/.local/bin/hpack --version
+    - name: Install protoc
+      run: |
+        mkdir -p $HOME/.local/bin/
+        PROTOC_ZIP=protoc-3.14.0-linux-x86_64.zip
+        curl -OL https://github.com/protocolbuffers/protobuf/releases/download/v3.14.0/$PROTOC_ZIP
+        unzip -o $PROTOC_ZIP -d $HOME/.local bin/protoc
+        chmod +x $HOME/.local/bin/protoc
+        unzip -o $PROTOC_ZIP -d $HOME/.local 'include/*'
+        rm -f $PROTOC_ZIP
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+        $HOME/.local/bin/protoc --version
+    - uses: actions/checkout@v2
+    - name: Generate cabal files
+      run: for p in */package.yaml; do hpack $p; done
+    - name: Smuggle in protobuf protos
+      run: |
+        ln -s $HOME/.local/include/google/protobuf/*.proto google/protobuf
+        ls -l google/protobuf
+    - uses: actions/setup-haskell@v1
+      with:
+        ghc-version: '8.8.2'
+        cabal-version: '3.0'
+
+    - name: Cache
+      uses: actions/cache@v1
+      env:
+        cache-name: cache-cabal
+      with:
+        path: ~/.cabal
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/cabal.project') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Dependencies
+      run:  cabal v2-build --dependencies-only all
+
+    - name: Put proto-lens-protoc on PATH
+      run:  |
+        cabal v2-build exe:proto-lens-protoc
+        cd proto-lens-protoc
+        cabal v2-exec -- sh -c 'dirname $(which proto-lens-protoc)' >> $GITHUB_PATH
+
+    - name: Build all
+      run:  |
+        (cd proto-lens-protobuf-types ; ls -l proto-src/google/protobuf/ ; ls -l proto-src/google ls -l proto-src ; true)
+        cabal v2-build all
+
+    - name: Test
+      run:  cabal v2-test all
