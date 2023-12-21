@@ -1,5 +1,5 @@
 name: proto-lens-protobuf-types
-version: '0.7.0.0'
+version: '0.7.1.2'
 synopsis: Basic protocol buffer message types.
 description: >
   This package provides bindings standard protocol message types,
@@ -18,22 +18,23 @@ extra-source-files:
   - proto-src/google/protobuf/duration.proto
   - proto-src/google/protobuf/empty.proto
   - proto-src/google/protobuf/wrappers.proto
+  - proto-src/google/protobuf/struct.proto
   - proto-src/google/protobuf/timestamp.proto
 
 custom-setup:
   dependencies:
-    - base >= 4.10 && < 4.16
+    - base >= 4.10 && < 4.17
     - Cabal
     - proto-lens-setup == 0.4.*
 
 build-tools: proto-lens-protoc:proto-lens-protoc
 
 dependencies:
-  - base >= 4.10 && < 4.16
+  - base >= 4.10 && < 4.17
   - lens-family >= 1.2 && < 2.2
   - proto-lens == 0.7.*
   - proto-lens-runtime == 0.7.*
-  - text == 1.2.*
+  - text >= 1.2 && < 2.1
 
 library:
   source-dirs: src
@@ -53,11 +54,14 @@ library:
     - Proto.Google.Protobuf.Empty_Fields
     - Proto.Google.Protobuf.Wrappers
     - Proto.Google.Protobuf.Wrappers_Fields
+    - Proto.Google.Protobuf.Struct
+    - Proto.Google.Protobuf.Struct_Fields
     - Proto.Google.Protobuf.Timestamp
     - Proto.Google.Protobuf.Timestamp_Fields
   # Prevent hpack from putting Paths_* in the other-modules.
   # Otherwise, "cabal check" complains (preventing upload to Hackage)
   # because it expects it to be listed in autogen-modules.
   # For details, see https://github.com/sol/hpack/issues/303.
-  verbatim:
-    other-modules:
+  when:
+  - condition: false
+    other-modules: Paths_proto_lens_protobuf_types
